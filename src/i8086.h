@@ -50,9 +50,10 @@ public:
         Word reserved4 : 1; // Reserved, bit 15
     };
     Flags FR;
+    GPReg regs;
 
     memory ram; // 0x00000 -> 0xCFFFF
-    memory rom; // 0x 0xCFFFF -> 0xFFFFF
+    memory rom; // 0x 0xF0000 -> 0xFFFFF
 
     Byte readByte(u32 address, u32 segment);
     Word readWord(u32 address, u32 segment);
@@ -63,6 +64,7 @@ public:
 
     bool execute();
     void start(u32 cycles);
+    void init();
 
     void interrupt(Byte vector);
 
@@ -75,10 +77,33 @@ public:
 
 private:
     u32 cycles;
+    bool halt;
+    Word *os;
 
-    Word getFlags();
+    Word
+    getFlags();
     void pushByte(Byte value);
     void pushWord(Word value);
     Byte popByte();
     Word popWord();
+
+    Byte getRegister8Value(Byte regIndex);
+    bool isMemoryOperand(Byte modRM);
+    void setRegister8Value(Byte rmIndex, Byte value);
+    void handleRepe();
+    void exeOpcode();
+    void executeStringInstruction(bool repne);
+    void setRegister16Value(Byte regIndex, Word value);
+    u32 getAddressFromModRM(Byte modRM, Word segment);
+    void setSegmentRegister(Byte hexReg, Word value);
+    Word getSegmentRegister(Byte hexReg);
+
+    void movsb(Word *segmentOverride);
+    void movsw(Word *segmentOverride);
+    void stosb(Word *segmentOverride);
+    void stosw(Word *segmentOverride);
+    void lodsw(Word *segmentOverride);
+    void lodsb(Word *segmentOverride);
+    void scasb(Word *segmentOverride);
+    void scasw(Word *segmentOverride);
 };
